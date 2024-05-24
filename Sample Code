@@ -1,0 +1,64 @@
+import pandas as pd
+import numpy as np
+from faker import Faker
+
+fake = Faker()
+
+# Parameters
+num_entries = 10000
+brands = ['Sundrop Cereal']  # Updated brand
+sub_brands = [
+    'Sundrop Popz Shells - 14g',
+    'Sundrop Popz Shells - 18g',
+    'Sundrop Popz Shells - 28g',
+    'Sundrop Popz Cinnamon Shells - 28g',
+    'Sundrop Popz Shells Fortified - 37g',
+    'Sundrop Popz Shells - 300gm'
+]  # Updated sub-brands
+
+# List of all states in India
+states = [
+    'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat',
+    'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 
+    'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 
+    'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 
+    'Uttarakhand', 'West Bengal', 'Delhi', 'Jammu and Kashmir', 'Ladakh'
+]
+zones = ['Zone 1', 'Zone 2', 'Zone 3', 'Zone 4']
+areas = ['Area A', 'Area B', 'Area C', 'Area D']
+
+# Generate data
+data = []
+
+for _ in range(num_entries):
+    date = fake.date_this_year()
+    brand = np.random.choice(brands)
+    sub_brand = np.random.choice(sub_brands)
+    sku_description = sub_brand
+    forecast = np.random.randint(100, 200)
+    sales = forecast + np.random.randint(-10, 10)
+    inventory = sales + np.random.randint(50, 150)
+    error = (forecast - sales) / forecast * 100
+    rsfe = np.random.randint(-10, 10)
+    mad = abs(forecast - sales)
+    tracking_signal = rsfe / mad if mad != 0 else 0
+    state = np.random.choice(states)
+    zone = np.random.choice(zones)
+    area = np.random.choice(areas)
+    
+    data.append([
+        date, brand, sub_brand, sku_description, forecast, sales, inventory, 
+        round(error, 2), rsfe, mad, round(tracking_signal, 2), state, zone, area
+    ])
+
+# Create DataFrame
+df = pd.DataFrame(data, columns=[
+    'Date', 'Brand', 'Sub Brand', 'SKU Description', 'Forecast', 'Sales', 'Inventory', 
+    '% Error', 'RSFE', 'MAD', 'Tracking Signal', 'State', 'Zone', 'Area'
+])
+
+# Add Inventory Days column
+df['Inventory Days'] = (df['Inventory'] / df['Sales']) * 30
+
+# Save to CSV
+df.to_csv('Sundrop_Cereal.csv', index=False)
